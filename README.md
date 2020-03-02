@@ -7,4 +7,6 @@ A Home Automation system using a single board computer solely manipulated by ges
 - Visual Studio Code
 
 ## Hardware
--
+- RaspberyPi (Single Board Computer)
+- Webcam
+- Pi Camera Module

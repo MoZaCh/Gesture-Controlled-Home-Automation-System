@@ -5,6 +5,8 @@ import math
 import threading
 import time
 
+#from appscript import app
+
 # Env:
 # OS: Windows 10
 # Language: Python 3.6
@@ -41,10 +43,54 @@ def removeBG(frame):
     # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     # res = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
 
-    kernel = np.ones((3, 3), np.unit8)
+    kernel = np.ones((3, 3), np.uint8)
     fgmask = cv2.erode(fgmask, kernel, iterations=1)
     res = cv2.bitwise_and(frame, frame, mask=fgmask)
     return res
+
+def calculateFingers(res, drawing):  # -> finished bool, cnt: finger count
+    global lightStatus
+    global timerStatus
+
+    #  convexity defect
+    hull = cv2.convexHull(res, returnPoints=False)
+    if len(hull) > 3:
+        defects = cv2.convexityDefects(res, hull)
+        if type(defects) != type(None):  # avoid crashing.   (BUG not found)
+
+            cnt = 0
+            for i in range(defects.shape[0]):  # calculate the angle
+                s, e, f, d = defects[i][0]
+                start = tuple(res[s][0])
+                end = tuple(res[e][0])
+                far = tuple(res[f][0])
+                a = math.sqrt((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)
+                b = math.sqrt((far[0] - start[0]) ** 2 + (far[1] - start[1]) ** 2)
+                c = math.sqrt((end[0] - far[0]) ** 2 + (end[1] - far[1]) ** 2)
+                angle = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c))  # cosine theorem
+                if angle <= math.pi / 2:  # angle less than 90 degree, treat as fingers
+                    cnt += 1
+                    cv2.circle(drawing, far, 8, [211, 84, 0], -1)
+            # print(cnt)
+
+            if len(gesture) == 0 or gesture[len(gesture)-1] != cnt and timerStatus == False:
+                gesture.append(cnt)
+                print(gesture)
+
+                if len(gesture) >= 2 and lightStatus == False:
+                    # applianceOn()
+                    print('test')
+
+                elif len(gesture) >= 2 and lightStatus == True:
+                    # applianceOff()
+                    print('Test')
+
+                if len(gesture) >= 4:
+                    gesture.clear()
+
+            cnt = 0
+            return True, cnt
+    return False, 0
 
 
 # Video capture (camera)
@@ -60,7 +106,7 @@ while cap.isOpened():
     ret, frame = cap.read()
     #threshold = cv2.getTrackbarPos('trh1', 'trackbar')
     frame = cv2.bilateralFilter(frame, 5, 50, 100) # Smoothing filter
-    cv2.rectangle(frame, 1) # The frame is flipped horizontally
+    frmae = cv2.flip(frame, 1) # The frame is flipped horizontally
     cv2.rectangle(frame, (int(cap_region_x_begin * frame.shape[1]), 0),
                   (frame.shape[1], int(cap_region_y_end * frame.shape[0])), (255, 0, 0), 2)
     cv2.imshow('original', frame)
@@ -100,7 +146,7 @@ while cap.isOpened():
             cv2.drawContours(drawing, [res], 0, (0, 255, 0), 2)
             cv2.drawContours(drawing, [hull], 0, (0, 0, 255), 3)
 
-            #isFinishCal, cnt = calculateFingers(res, drawing)
+            isFinishCal, cnt = calculateFingers(res, drawing)
 
             if triggerSwitch is True:
                 if isFinishCal is True and cnt <= 2:
@@ -126,19 +172,3 @@ while cap.isOpened():
     elif k == ord('n'):
         triggerSwitch = True
         print('** Trigger On **')
-
-
-
-
-
-
-
-    grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    (thresh, binaryImage) = cv2.threshold(grey, 127, 255, cv2.THRESH_BINARY)
-
-    cv2.imshow('frame', frame) #Showing the normal capture
-    cv2.imshow('grey', grey) #Showing the capture in greyscale
-    cv2.imshow('Black white image', binaryImage)
-
-    if cv2.waitKey(20) & 0xFF == ord('q'):
-        break

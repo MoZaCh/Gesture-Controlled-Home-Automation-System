@@ -36,6 +36,17 @@ gesture = [] # Array storing pattern of gesture that is performed and captured
 # Font
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+def removeBG(frame):
+    fgmask = bgModel.apply(frame, learningRate=learningRate)
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    # res = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+
+    kernel = np.ones((3, 3), np.unit8)
+    fgmask = cv2.erode(fgmask, kernel, iterations=1)
+    res = cv2.bitwise_and(frame, frame, mask=fgmask)
+    return res
+
+
 # Video capture (camera)
 cap = cv2.VideoCapture(0)
 cap.set(10, 200)

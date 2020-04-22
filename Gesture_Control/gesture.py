@@ -55,10 +55,12 @@ while cap.isOpened():
     cv2.imshow('original', frame)
     #cv2.putText(frame, 'H', (140, 250), font, .5, (255, 255, 255), 2, cv2.LINE_AA)
 
-    # # Main operation
+    # Main operation
     # if isBgCaptured == 1: # The section below will only run once background is captured
-    #     img.removeBg(frame)
-
+    #     img = removeBG(frame)
+    #     img = img[0:int(cap_region_y_end * frame.shape[0]),
+    #           int(cap_region_x_begin * frame.shape[1]):frame.shape[1]]
+    #     cv2.imshow('mask', img)
 
     grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     (thresh, binaryImage) = cv2.threshold(grey, 127, 255, cv2.THRESH_BINARY)

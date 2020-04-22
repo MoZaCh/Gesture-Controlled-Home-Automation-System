@@ -106,7 +106,7 @@ while cap.isOpened():
     ret, frame = cap.read()
     #threshold = cv2.getTrackbarPos('trh1', 'trackbar')
     frame = cv2.bilateralFilter(frame, 5, 50, 100) # Smoothing filter
-    frmae = cv2.flip(frame, 1) # The frame is flipped horizontally
+    frame = cv2.flip(frame, 1) # The frame is flipped horizontally
     cv2.rectangle(frame, (int(cap_region_x_begin * frame.shape[1]), 0),
                   (frame.shape[1], int(cap_region_y_end * frame.shape[0])), (255, 0, 0), 2)
     cv2.imshow('original', frame)

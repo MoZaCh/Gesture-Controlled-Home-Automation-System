@@ -39,11 +39,11 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 # Video capture (camera)
 cap = cv2.VideoCapture(0)
 cap.set(10, 200)
-cv2.nameWindow('trackbar')
+#cv2.nameWindow('trackbar')
 #cv2.createTrackbar('trh1', 'trackbar', threshold, 100, printThreshold)
 
 
-cap = cv2.VideoCapture(0) #
+cap = cv2.VideoCapture(0) # Capture live video from the first camera device
 
 while cap.isOpened():
     ret, frame = cap.read()

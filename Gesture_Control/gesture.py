@@ -38,6 +38,9 @@ gesture = [] # Array storing pattern of gesture that is performed and captured
 # Font
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+def printThreshold(thr):
+    print("** Threshold changed to " + str(thr) + " **")
+
 def removeBG(frame):
     fgmask = bgModel.apply(frame, learningRate=learningRate)
     # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
@@ -96,15 +99,12 @@ def calculateFingers(res, drawing):  # -> finished bool, cnt: finger count
 # Video capture (camera)
 cap = cv2.VideoCapture(0)
 cap.set(10, 200)
-#cv2.nameWindow('trackbar')
-#cv2.createTrackbar('trh1', 'trackbar', threshold, 100, printThreshold)
-
-
-cap = cv2.VideoCapture(0) # Capture live video from the first camera device
+cv2.namedWindow('trackbar')
+cv2.createTrackbar('trh1', 'trackbar', threshold, 100, printThreshold)
 
 while cap.isOpened():
     ret, frame = cap.read()
-    #threshold = cv2.getTrackbarPos('trh1', 'trackbar')
+    threshold = cv2.getTrackbarPos('trh1', 'trackbar')
     frame = cv2.bilateralFilter(frame, 5, 50, 100) # Smoothing filter
     frame = cv2.flip(frame, 1) # The frame is flipped horizontally
     cv2.rectangle(frame, (int(cap_region_x_begin * frame.shape[1]), 0),
